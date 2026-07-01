@@ -60,9 +60,18 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 # Database - use DATABASE_URL (Supabase) or fallback to sqlite
 DATABASE_URL = os.getenv('DATABASE_URL')
+
+# Em produção, DATABASE_URL é obrigatório
+if not DATABASE_URL and not DEBUG:
+    raise ValueError(
+        "DATABASE_URL não configurada! "
+        "Configure a variável de ambiente DATABASE_URL na Vercel."
+    )
+
 if DATABASE_URL:
     DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 else:
+    # Fallback para SQLite apenas em desenvolvimento
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
