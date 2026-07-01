@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teste Django - Sala de Aula</title>
+  </head>
+  <body>
+    <h1>Teste Django com Supabase (aulas)</h1>
+    <p>Lista de notas (exemplo):</p>
+    <ul>
+      {% for note in notes %}
+        <li>{{ note.title }} - {{ note.content }}</li>
+      {% empty %}
+        <li>(sem notas)</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
