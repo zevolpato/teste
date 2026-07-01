@@ -52,7 +52,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
 # Database - use DATABASE_URL (Supabase) or fallback to sqlite
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv('https://sdszstduyaudshbjrmpu.supabase.co')
 if DATABASE_URL:
     DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 else:
