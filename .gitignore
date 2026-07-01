@@ -5,3 +5,6 @@ env/
 venv/
 *.log
 staticfiles/
+.env.local
+.env
+
