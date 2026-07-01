@@ -1,10 +1,13 @@
 import os
 from pathlib import Path
 import dj_database_url
-from dotenv import load_dotenv
 
-# Carrega variáveis de ambiente do arquivo .env.local
-load_dotenv(Path(__file__).resolve().parent.parent / '.env.local')
+# Tenta carregar variáveis de ambiente do arquivo .env.local (apenas em desenvolvimento)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent.parent / '.env.local')
+except ImportError:
+    pass
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -56,7 +59,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
 # Database - use DATABASE_URL (Supabase) or fallback to sqlite
-DATABASE_URL = os.getenv('https://sdszstduyaudshbjrmpu.supabase.co')
+DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
     DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
 else:
