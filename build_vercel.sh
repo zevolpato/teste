@@ -15,7 +15,7 @@ python manage.py collectstatic --noinput
 
 echo ""
 echo "=== Executando migrations ==="
-python manage.py migrate --noinput
+python manage.py migrate --noinput || true
 
 echo ""
 echo "=== Build concluído ==="

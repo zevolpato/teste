@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
 import dj_database_url
 
 # Tenta carregar variáveis de ambiente do arquivo .env.local (apenas em desenvolvimento)
@@ -8,6 +10,24 @@ try:
     load_dotenv(Path(__file__).resolve().parent.parent / '.env.local')
 except ImportError:
     pass
+
+
+def normalize_database_url(database_url):
+    if not database_url:
+        return database_url
+
+    database_url = database_url.strip()
+    parsed = urlsplit(database_url)
+
+    if parsed.scheme in {'postgres', 'postgresql'}:
+        query_items = [(key, value) for key, value in parse_qsl(parsed.query, keep_blank_values=True) if key not in {'pgbouncer', 'supa'}]
+        parsed = parsed._replace(query=urlencode(query_items, doseq=True))
+        database_url = urlunsplit(parsed)
+
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+    return database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -58,18 +78,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-# Database - use DATABASE_URL (Supabase) or fallback to sqlite
-DATABASE_URL = os.getenv('DATABASE_URL')
+# Database - use DATABASE_URL or the Supabase POSTGRES_* variables, then fallback to sqlite
+DATABASE_URL = (
+    os.getenv('DATABASE_URL')
+    or os.getenv('POSTGRES_URL_NON_POOLING')
+    or os.getenv('POSTGRES_PRISMA_URL')
+    or os.getenv('POSTGRES_URL')
+)
 
-# Em produção, DATABASE_URL é obrigatório
+# Em produção, uma URL válida de banco é obrigatória
 if not DATABASE_URL and not DEBUG:
     raise ValueError(
-        "DATABASE_URL não configurada! "
-        "Configure a variável de ambiente DATABASE_URL na Vercel."
+        "Nenhuma URL de banco válida configurada. "
+        "Configure DATABASE_URL ou POSTGRES_URL_NON_POOLING na Vercel."
     )
 
 if DATABASE_URL:
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+    sanitized_database_url = normalize_database_url(DATABASE_URL)
+    DATABASES = {'default': dj_database_url.parse(sanitized_database_url, conn_max_age=600)}
 else:
     # Fallback para SQLite apenas em desenvolvimento
     DATABASES = {

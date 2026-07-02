@@ -45,7 +45,8 @@ except Exception as e:
         status = '500 Internal Server Error'
         response_headers = [('Content-type', 'text/plain; charset=utf-8')]
         start_response(status, response_headers)
-        return [b'Erro ao inicializar Django: Verifique DATABASE_URL e outras variáveis de ambiente']
+        body = 'Erro ao inicializar Django: Verifique DATABASE_URL e outras variáveis de ambiente'.encode('utf-8')
+        return [body]
     
     logger.info("Usando handler de fallback")
 
